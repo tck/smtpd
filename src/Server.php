@@ -341,9 +341,9 @@ class Server extends Thread
      * @param array $rcpt
      * @param \Zend\Mail\Message $mail
      */
-    public function newMail(string $from, array $rcpt, Message $mail)
+    public function newMail(string $from, array $rcpt, Message $mail, string $content)
     {
-        $this->eventExecute(Event::TRIGGER_NEW_MAIL, [$from, $rcpt, $mail]);
+        $this->eventExecute(Event::TRIGGER_NEW_MAIL, [$from, $rcpt, $mail, $content]);
     }
 
     /**

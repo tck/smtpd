@@ -476,7 +476,7 @@ class Client
                     }
 
                     $server = $this->getServer();
-                    $server->newMail($this->from, $this->rcpt, $zmail);
+                    $server->newMail($this->from, $this->rcpt, $zmail, $this->mail);
 
                     $this->from = '';
                     $this->rcpt = [];
