@@ -3,7 +3,7 @@
 namespace TheFox\Test;
 
 use PHPUnit\Framework\TestCase;
-use Zend\Mail\Message;
+use Laminas\Mail\Message;
 use TheFox\Smtp\Server;
 use TheFox\Smtp\Client;
 use TheFox\Smtp\Event;

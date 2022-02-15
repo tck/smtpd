@@ -4,7 +4,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use TheFox\Smtp\Server;
 use TheFox\Smtp\Event;
-use Zend\Mail\Message;
+use Laminas\Mail\Message;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
