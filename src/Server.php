@@ -341,19 +341,19 @@ class Server extends Thread
      * @param array $rcpt
      * @param \Zend\Mail\Message $mail
      */
-    public function newMail(string $from, array $rcpt, Message $mail, string $content)
+    public function newMail(string $from, array $rcpt, Message $mail, string $content, TransferObject $transferObject)
     {
-        $this->eventExecute(Event::TRIGGER_NEW_MAIL, [$from, $rcpt, $mail, $content]);
+        $this->eventExecute(Event::TRIGGER_NEW_MAIL, [$from, $rcpt, $mail, $content, $transferObject]);
     }
 
     /**
      * @param string $rcpt
      * @return bool
      */
-    public function newRcpt(string $rcpt)
+    public function newRcpt(string $rcpt, TransferObject $transferObject)
     {
         foreach ($this->events as $eventId => $event) {
-            if ($event->getTrigger() == Event::TRIGGER_NEW_RCPT && !$event->execute([$rcpt])) {
+            if ($event->getTrigger() == Event::TRIGGER_NEW_RCPT && !$event->execute([$rcpt, $transferObject])) {
                 return false;
             }
         }
@@ -368,10 +368,10 @@ class Server extends Thread
      * @param array $credentials
      * @return boolean
      */
-    public function authenticateUser(string $method, array $credentials = []): bool
+    public function authenticateUser(string $method, array $credentials, TransferObject $transferObject): bool
     {
         $authenticated = false;
-        $args = [$method, $credentials];
+        $args = [$method, $credentials, $transferObject];
 
         foreach ($this->events as $eventId => $event) {
             if ($event->getTrigger() == Event::TRIGGER_AUTH_ATTEMPT) {

@@ -92,6 +92,8 @@ class Client
         'HELP',
     ];
 
+    private $transferObject;
+
     /**
      * Client constructor.
      * @param array $options
@@ -112,6 +114,8 @@ class Client
         $this->status['hasHello'] = false;
         $this->status['hasMail'] = false;
         $this->status['hasShutdown'] = false;
+
+        $this->transferObject = new TransferObject;
     }
 
     /**
@@ -355,7 +359,7 @@ class Client
                         $rcpt = substr(substr($rcpt, 4), 0, -1);
 
                         $server = $this->getServer();
-                        if (!$server->newRcpt($rcpt)) {
+                        if (!$server->newRcpt($rcpt, $this->transferObject)) {
                             return $this->sendUserUnknown();
                         }
                         $this->rcpt[] = $rcpt;
@@ -476,7 +480,7 @@ class Client
                     }
 
                     $server = $this->getServer();
-                    $server->newMail($this->from, $this->rcpt, $zmail, $this->mail);
+                    $server->newMail($this->from, $this->rcpt, $zmail, $this->mail, $this->transferObject);
 
                     $this->from = '';
                     $this->rcpt = [];
@@ -520,7 +524,7 @@ class Client
      */
     public function authenticate(string $method): bool
     {
-        $attempt = $this->getServer()->authenticateUser($method, $this->getCredentials());
+        $attempt = $this->getServer()->authenticateUser($method, $this->getCredentials(), $this->transferObject);
 
         $this->setStatus('hasAuth', false);
         $this->setStatus('hasAuth' . ucfirst($method), false);
