@@ -76,6 +76,11 @@ class Server extends Thread
     private $hostname;
 
     /**
+     * @var string
+     */
+    private $mailData = 'object';
+
+    /**
      * Server constructor.
      * @param array $options
      */
@@ -91,6 +96,7 @@ class Server extends Thread
         $this->options = $resolver->resolve($options);
 
         $this->logger = $this->options['logger'];
+        $this->mailData = $this->options['mail_data'] ?? 'object';
 
         $this->setIp($this->options['ip']);
         $this->setPort($this->options['port']);
@@ -271,6 +277,7 @@ class Server extends Thread
 
         $options = [
             'hostname' => $this->getHostname(),
+            'mail_data' => $this->mailData,
             'logger' => $this->logger,
         ];
         $client = new Client($options);
@@ -339,21 +346,21 @@ class Server extends Thread
     /**
      * @param string $from
      * @param array $rcpt
-     * @param \Laminas\Mail\Message $mail
+     * @param \Laminas\Mail\Message|string $mail
      */
-    public function newMail(string $from, array $rcpt, Message $mail, string $content, TransferObject $transferObject)
+    public function newMail(string $from, array $rcpt, $mail)
     {
-        $this->eventExecute(Event::TRIGGER_NEW_MAIL, [$from, $rcpt, $mail, $content, $transferObject]);
+        $this->eventExecute(Event::TRIGGER_NEW_MAIL, [$from, $rcpt, $mail]);
     }
 
     /**
      * @param string $rcpt
      * @return bool
      */
-    public function newRcpt(string $rcpt, TransferObject $transferObject)
+    public function newRcpt(string $rcpt)
     {
         foreach ($this->events as $eventId => $event) {
-            if ($event->getTrigger() == Event::TRIGGER_NEW_RCPT && !$event->execute([$rcpt, $transferObject])) {
+            if ($event->getTrigger() == Event::TRIGGER_NEW_RCPT && !$event->execute([$rcpt])) {
                 return false;
             }
         }
@@ -368,10 +375,10 @@ class Server extends Thread
      * @param array $credentials
      * @return boolean
      */
-    public function authenticateUser(string $method, array $credentials, TransferObject $transferObject): bool
+    public function authenticateUser(string $method, array $credentials): bool
     {
         $authenticated = false;
-        $args = [$method, $credentials, $transferObject];
+        $args = [$method, $credentials];
 
         foreach ($this->events as $eventId => $event) {
             if ($event->getTrigger() == Event::TRIGGER_AUTH_ATTEMPT) {

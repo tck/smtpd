@@ -92,7 +92,10 @@ class Client
         'HELP',
     ];
 
-    private $transferObject;
+    /**
+     * @var string
+     */
+    private $mailData = 'object';
 
     /**
      * Client constructor.
@@ -109,13 +112,12 @@ class Client
 
         $this->logger = $this->options['logger'];
         $this->hostname = $this->options['hostname'];
+        $this->mailData = $this->options['mail_data'] ?? 'object';
 
         $this->status = [];
         $this->status['hasHello'] = false;
         $this->status['hasMail'] = false;
         $this->status['hasShutdown'] = false;
-
-        $this->transferObject = new TransferObject;
     }
 
     /**
@@ -359,7 +361,7 @@ class Client
                         $rcpt = substr(substr($rcpt, 4), 0, -1);
 
                         $server = $this->getServer();
-                        if (!$server->newRcpt($rcpt, $this->transferObject)) {
+                        if (!$server->newRcpt($rcpt)) {
                             return $this->sendUserUnknown();
                         }
                         $this->rcpt[] = $rcpt;
@@ -473,14 +475,18 @@ class Client
                 if ($msgRaw == '.') {
                     $this->mail = substr($this->mail, 0, -strlen(static::MSG_SEPARATOR));
 
-                    try {
-                        $zmail = Message::fromString($this->mail);
-                    } catch (InvalidArgumentException $e) {
-                        return $this->sendSyntaxErrorInParameters();
+                    if ('object' === $this->mailData) {
+                        try {
+                            $content = Message::fromString($this->mail);
+                        } catch (InvalidArgumentException $e) {
+                            return $this->sendSyntaxErrorInParameters();
+                        }
+                    } else {
+                        $content = $this->mail;
                     }
 
                     $server = $this->getServer();
-                    $server->newMail($this->from, $this->rcpt, $zmail, $this->mail, $this->transferObject);
+                    $server->newMail($this->from, $this->rcpt, $content);
 
                     $this->from = '';
                     $this->rcpt = [];
@@ -524,7 +530,7 @@ class Client
      */
     public function authenticate(string $method): bool
     {
-        $attempt = $this->getServer()->authenticateUser($method, $this->getCredentials(), $this->transferObject);
+        $attempt = $this->getServer()->authenticateUser($method, $this->getCredentials());
 
         $this->setStatus('hasAuth', false);
         $this->setStatus('hasAuth' . ucfirst($method), false);
