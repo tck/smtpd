@@ -380,6 +380,11 @@ class Client
             }
 
             return $this->sendSyntaxErrorCommandUnrecognized();
+        } elseif ($commandCmp == 'rset') {
+            $this->from = '';
+            $this->rcpt = [];
+            $this->mail = '';
+            return $this->sendOk();
         } elseif ($commandCmp == 'noop') {
             return $this->sendOk();
         } elseif ($commandCmp == 'quit') {
@@ -434,7 +439,7 @@ class Client
                 return $this->sendTemporaryErrorStartTls();
             }
         } elseif ($commandCmp == 'help') {
-            return $this->sendOk('HELO, EHLO, MAIL FROM, RCPT TO, DATA, NOOP, QUIT');
+            return $this->sendOk('HELO, EHLO, RSET, MAIL FROM, RCPT TO, DATA, NOOP, QUIT');
         } else {
             if ($this->getStatus('hasAuth')) {
                 if ($this->getStatus('hasAuthPlain')) {
