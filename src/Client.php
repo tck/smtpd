@@ -108,11 +108,12 @@ class Client
             'hostname' => 'localhost.localdomain',
             'logger' => new NullLogger(),
         ]);
+        $this->mailData = $options['mail_data'] ?? 'object';
+        unset($options['mail_data']);
         $this->options = $resolver->resolve($options);
 
         $this->logger = $this->options['logger'];
         $this->hostname = $this->options['hostname'];
-        $this->mailData = $this->options['mail_data'] ?? 'object';
 
         $this->status = [];
         $this->status['hasHello'] = false;

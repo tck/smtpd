@@ -93,10 +93,11 @@ class Server extends Thread
             'hostname' => 'localhost.localdomain',
             'logger' => new NullLogger(),
         ]);
+        $this->mailData = $options['mail_data'] ?? 'object';
+        unset($options['mail_data']);
         $this->options = $resolver->resolve($options);
 
         $this->logger = $this->options['logger'];
-        $this->mailData = $this->options['mail_data'] ?? 'object';
 
         $this->setIp($this->options['ip']);
         $this->setPort($this->options['port']);
